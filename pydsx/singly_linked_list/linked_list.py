@@ -1,3 +1,5 @@
+import random
+
 """
 A linked list is a linear collection of data elements,
 whose order is not given by their physical placement in memory.
@@ -175,6 +177,29 @@ class SinglyLinkedList:
             current_node = current_node.next
         current_node.value = new_value
 
+    def get_node(self, index = -1):
+        """
+        Returns the node at the specified index of the SinglyLinkedList it's
+        called on, returns the last node by default.
+        """
+        if index == -1:
+            curr_node = self._head
+            if curr_node is None or curr_node.next is None:
+                return curr_node
+            while curr_node.next != None:
+                curr_node = curr_node.next
+            return curr_node
+        else:
+            curr_index = 0
+            curr_node = self._head
+            while curr_node:
+                if curr_index == index:
+                    return curr_node
+                curr_index += 1
+                curr_node = curr_node.next
+
+            raise IndexError("Index out off range")
+
     def sort(self, reverse=False, key="merge"):
         """
         Sorts the SinglyLinkedList object it's called on.
@@ -195,7 +220,7 @@ class SinglyLinkedList:
         if key == "merge":
             return self.merge_sort(reverse)
         elif key == "quick":
-            pass
+            return self.quick_sort(reverse)
         elif key == "heap":
             pass
         else:
@@ -302,6 +327,50 @@ class SinglyLinkedList:
         merged_list._head = fake_head.next
 
         return merged_list
+    
+    def quick_sort(self, reverse = False):
+        if(self._head is None or self._head.next is None):               # if single node return
+            return self
+
+        pivot_index = random.randint(0, self.__len - 1)
+        pivot = self.get_node(pivot_index)                                        
+        leftHalf = SinglyLinkedList()
+        rightHalf = SinglyLinkedList()
+
+        curr = self._head
+        ptr_left = leftHalf._head
+        ptr_right = rightHalf._head
+
+        while curr.next is not None:
+            if curr.value < pivot.value:
+                if ptr_left is None:
+                    ptr_left = Node(curr.value)
+                else:
+                    ptr_left.next = Node(curr.value)
+                    ptr_left = ptr_left.next
+            elif  curr.value > pivot.value:
+                if ptr_right is None:
+                    ptr_right = Node(curr.value)
+                else:
+                    ptr_right.next = Node(curr.value)
+                    ptr_right = ptr_right.next
+            curr = curr.next
+        
+        ptr_left.next = None
+        ptr_right.next = None
+        sort_left = leftHalf.quick_sort(reverse)
+        sort_right = rightHalf.quick_sort(reverse)
+
+        if sort_left._head is not None:
+            pivot.next = sort_right._head
+            left_tail = sort_left.get_node()
+            print(sort_left._head, left_tail)
+            left_tail.next = pivot
+            return sort_left
+        else:
+            pivot.next = sort_right._head
+            sort_right._head = pivot
+            return sort_right
 
 
 __all__ = ["SinglyLinkedList"]
